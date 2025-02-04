@@ -5,6 +5,7 @@ import MovieCard from "./components/MovieCard";
 import { useDebounce } from "react-use";
 import { updateSearchCount } from "./appwrite";
 import { getTrendingMovies } from "./appwrite";
+import MovieModal from "./components/MovieModal";
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
@@ -24,6 +25,7 @@ const App = () => {
   const [trendingMovies, setTrendingMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const [selectedMovie, setSelectedMovie] = useState(null);
 
   useDebounce(() => setDebouncedSearchTerm(searchTerm), 500, [searchTerm]);
   const fetchMovies = async (query = "") => {
@@ -56,10 +58,35 @@ const App = () => {
     }
   };
 
+  const fetchMovieDetails = async (movieId) => {
+    const url = `https://api.themoviedb.org/3/movie/${movieId}?`;
+
+    try {
+      const response = await fetch(url, API_OPTIONS);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch movie details (${response.status})`);
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(`Error fetching movie ID ${movieId}:`, error);
+      return null;
+    }
+  };
+
   const loadTrendingMovies = async () => {
     try {
       const movies = await getTrendingMovies();
-      setTrendingMovies(movies);
+      // Fetch additional details for each trending movie
+      const movieDetailsPromises = movies.map(async (movie) => {
+        const details = await fetchMovieDetails(movie.movie_id);
+        return {
+          ...movie,
+          ...details, // Spread the full movie details (poster, overview, etc.)
+        };
+      });
+      const fullTrendingMovies = await Promise.all(movieDetailsPromises);
+      setTrendingMovies(fullTrendingMovies);
     } catch (error) {
       console.error(`Error fetching trending movies: ${error}`);
     }
@@ -71,8 +98,19 @@ const App = () => {
   useEffect(() => {
     loadTrendingMovies();
   }, []);
+
+  useEffect(() => {
+    console.log("Selected Movie Updated:", selectedMovie);
+  }, [selectedMovie]);
+
   return (
     <main>
+      {selectedMovie && (
+        <MovieModal
+          movie={selectedMovie}
+          onClose={() => setSelectedMovie(null)}
+        />
+      )}
       <div className="pattern">
         <div className="wrapper">
           <header>
@@ -90,7 +128,14 @@ const App = () => {
                 {trendingMovies.map((movie, index) => (
                   <li key={movie.$id}>
                     <p>{index + 1}</p>
-                    <img src={movie.poster_url} alt={movie.title} />
+                    <img
+                      className="cursor-pointer"
+                      src={
+                        movie.poster_url ? movie.poster_url : "/No-Poster-1.png"
+                      }
+                      alt={movie.title || "No Title"}
+                      onClick={() => setSelectedMovie(movie)}
+                    />
                   </li>
                 ))}
               </ul>
@@ -107,7 +152,9 @@ const App = () => {
             ) : (
               <ul>
                 {movieList.map((movie) => (
-                  <MovieCard key={movie.id} movie={movie} />
+                  <div key={movie.id} onClick={() => setSelectedMovie(movie)}>
+                    <MovieCard movie={movie} />
+                  </div>
                 ))}
               </ul>
             )}

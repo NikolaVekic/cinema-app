@@ -6,6 +6,7 @@ const MovieCard = ({
   return (
     <div className="movie-card">
       <img
+        className="cursor-pointer"
         src={
           poster_path
             ? `https://image.tmdb.org/t/p/w500/${poster_path}`
@@ -14,7 +15,7 @@ const MovieCard = ({
         alt={title}
       />
       <div className="mt-4">
-        <h3>{title}</h3>
+        <h3 className="cursor-pointer inline">{title}</h3>
         <div className="content">
           <div className="rating">
             <img src="star.svg" alt="Star Icon" />
