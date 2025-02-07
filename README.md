@@ -1,4 +1,4 @@
-# 🎬 Cinema App
+# Cinema App
 
 <img width="689" alt="Screenshot 2025-02-07 174559" src="https://github.com/user-attachments/assets/8ecc3c76-ea19-4faf-b9fa-2c724efd847f" />
 
