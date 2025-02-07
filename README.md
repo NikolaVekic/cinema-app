@@ -2,7 +2,7 @@
 
 <img width="689" alt="Screenshot 2025-02-07 174559" src="https://github.com/user-attachments/assets/8ecc3c76-ea19-4faf-b9fa-2c724efd847f" />
 
-A sleek and modern movie discovery app built with **React (Vite)**, **Tailwind CSS**, and **Appwrite**.
+A movie discovery app built with **React (Vite)**, **Tailwind CSS**, and **Appwrite**.
 It fetches movie data from **The Movie Database (TMDb) API** and features a custom trending algorithm
 that highlights popular movies based on user searches.
 
